@@ -43,6 +43,7 @@ app/
     schemas.py         output contracts for both stages (FNA-10, FNA-11)
     llm.py             provider client: Groq / demo (FNA-12)
     stage1.py          stats -> FighterProfile (FNA-12)
+    stage2.py          two profiles -> MatchupAnalysis (FNA-13)
   templates/           index.html (FNA-17)
   static/              style.css, app.js (FNA-22)
 eval/                  harness and test cases (FNA-29, FNA-30)
