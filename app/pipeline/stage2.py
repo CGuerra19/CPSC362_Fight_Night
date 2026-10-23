@@ -8,6 +8,7 @@ to check. Like stage1.py, this is the plain V1 baseline.
 import json
 
 from . import llm
+from .guard import ask
 from .schemas import MatchupAnalysis, parse_matchup
 
 SYSTEM_V1 = (
@@ -29,7 +30,12 @@ def build_prompt(profile_a, profile_b):
     )
 
 
-def compare(profile_a, profile_b, complete=llm.complete):
+def compare(profile_a, profile_b, complete=llm.complete, repairs=1):
     """Run Stage 2 on two profiles from stage1.build_profile."""
-    raw = complete(SYSTEM_V1, build_prompt(profile_a, profile_b))
-    return parse_matchup(raw, profile_a.fighter_id, profile_b.fighter_id)
+    return ask(
+        SYSTEM_V1,
+        build_prompt(profile_a, profile_b),
+        lambda raw: parse_matchup(raw, profile_a.fighter_id, profile_b.fighter_id),
+        complete,
+        repairs,
+    )

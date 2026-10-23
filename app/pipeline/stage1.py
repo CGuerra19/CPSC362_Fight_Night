@@ -7,6 +7,7 @@ a baseline to beat in the eval (FNA-4).
 import json
 
 from . import llm
+from .guard import ask
 from .schemas import FighterProfile, parse_profile
 
 SYSTEM_V1 = (
@@ -30,11 +31,17 @@ def build_prompt(fighter):
     )
 
 
-def build_profile(fighter, complete=llm.complete):
+def build_profile(fighter, complete=llm.complete, repairs=1):
     """Run Stage 1 for one fighter record from load_fighters.
 
     complete is swappable so tests can pass a fake model instead of
-    calling the real API.
+    calling the real API. repairs is how many times a wrong-shaped answer
+    gets re-asked (FNA-16).
     """
-    raw = complete(SYSTEM_V1, build_prompt(fighter))
-    return parse_profile(raw, fighter_id=fighter["id"])
+    return ask(
+        SYSTEM_V1,
+        build_prompt(fighter),
+        lambda raw: parse_profile(raw, fighter_id=fighter["id"]),
+        complete,
+        repairs,
+    )

@@ -44,6 +44,7 @@ app/
     llm.py             provider client: Groq / demo (FNA-12)
     stage1.py          stats -> FighterProfile (FNA-12)
     stage2.py          two profiles -> MatchupAnalysis (FNA-13)
+    guard.py           re-ask on bad output, user-facing errors (FNA-16)
   templates/           index.html (FNA-17)
   static/              style.css, app.js (FNA-22)
 eval/                  harness and test cases (FNA-29, FNA-30)
