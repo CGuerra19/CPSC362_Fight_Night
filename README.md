@@ -39,6 +39,8 @@ app/
   data/
     fighters.json      fighter database (FNA-8)
     load_fighters.py   data-access layer (FNA-9)
+  pipeline/
+    schemas.py         output contracts for both stages (FNA-10, FNA-11)
   templates/           index.html (FNA-17)
   static/              style.css, app.js (FNA-22)
 eval/                  harness and test cases (FNA-29, FNA-30)
