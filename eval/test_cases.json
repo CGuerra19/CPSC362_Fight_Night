@@ -1,0 +1,203 @@
+{
+  "_meta": {
+    "ticket": "FNA-29",
+    "about": "Labeled matchups for the V1-V4 eval. Each case says which stats a good analysis should rest on (fact coverage, FNA-35) and which claims would be wrong (forbidden claims, FNA-37). No stat values are stored here: the checkers look them up in fighters.json at run time, so these labels stay valid after the stats are re-sourced (FNA-40). Re-read the forbidden rules after FNA-40 in case a re-sourced stat flips one.",
+    "not_measured": "Who actually won a real fight. That measures luck, not prompt quality.",
+    "fields": {
+      "expected_stats": "per fighter: stats an analysis of this matchup should cite, with the right value",
+      "forbidden.styles": "per fighter: style labels that contradict the data",
+      "forbidden.favors": "a key factor whose name contains any keyword must not favor this fighter",
+      "forbidden.phrases": "regular expressions that must not appear anywhere in the output"
+    }
+  },
+  "cases": [
+    {
+      "id": "tc01",
+      "fighter_a": "islam-makhachev",
+      "fighter_b": "alex-pereira",
+      "why": "Elite grappler vs knockout striker, two divisions apart. Tests size awareness and the striker/grappler split.",
+      "tags": ["cross-division", "grappler-vs-striker"],
+      "expected_stats": {
+        "islam-makhachev": ["td_avg_per15", "td_def_pct"],
+        "alex-pereira": ["slpm", "reach_in"]
+      },
+      "forbidden": {
+        "styles": { "islam-makhachev": ["Striker"], "alex-pereira": ["Wrestler", "Grappler"] },
+        "favors": [
+          { "keywords": ["grappl", "wrestl", "takedown"], "not": "alex-pereira", "why": "Pereira has no takedown offense and the weaker takedown defense" },
+          { "keywords": ["reach", "height", "size", "weight"], "not": "islam-makhachev", "why": "Pereira is bigger in every measurement" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc02",
+      "fighter_a": "islam-makhachev",
+      "fighter_b": "charles-oliveira",
+      "why": "Same division, two grapplers with different strengths: takedowns vs submissions.",
+      "tags": ["same-division", "grappler-vs-grappler"],
+      "expected_stats": {
+        "islam-makhachev": ["td_avg_per15", "td_def_pct"],
+        "charles-oliveira": ["sub_avg_per15"]
+      },
+      "forbidden": {
+        "styles": { "islam-makhachev": ["Striker"], "charles-oliveira": ["Striker"] },
+        "favors": [
+          { "keywords": ["takedown", "wrestl"], "not": "charles-oliveira", "why": "Makhachev lands more takedowns and defends them far better" },
+          { "keywords": ["submission"], "not": "islam-makhachev", "why": "Oliveira attempts about three times as many submissions" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc03",
+      "fighter_a": "islam-makhachev",
+      "fighter_b": "ilia-topuria",
+      "why": "Same division, grappler vs pressure boxer. Only one of them is undefeated.",
+      "tags": ["same-division", "grappler-vs-striker", "undefeated"],
+      "expected_stats": {
+        "islam-makhachev": ["td_avg_per15"],
+        "ilia-topuria": ["slpm", "td_def_pct"]
+      },
+      "forbidden": {
+        "styles": { "islam-makhachev": ["Striker"] },
+        "favors": [
+          { "keywords": ["volume", "output"], "not": "islam-makhachev", "why": "Topuria lands more than twice as many strikes per minute" },
+          { "keywords": ["takedown offense", "takedown volume", "wrestling offense"], "not": "ilia-topuria", "why": "Makhachev lands about twice as many takedowns" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc04",
+      "fighter_a": "ilia-topuria",
+      "fighter_b": "max-holloway",
+      "why": "Power boxer vs the highest-volume striker, one division apart.",
+      "tags": ["cross-division", "striker-vs-striker"],
+      "expected_stats": {
+        "ilia-topuria": ["str_acc_pct", "td_avg_per15"],
+        "max-holloway": ["slpm", "sapm"]
+      },
+      "forbidden": {
+        "styles": { "max-holloway": ["Wrestler", "Grappler"] },
+        "favors": [
+          { "keywords": ["volume", "output", "pace"], "not": "ilia-topuria", "why": "Holloway throws the most strikes per minute in the set" },
+          { "keywords": ["grappl", "takedown", "wrestl"], "not": "max-holloway", "why": "Holloway barely attempts takedowns" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc05",
+      "fighter_a": "merab-dvalishvili",
+      "fighter_b": "sean-omalley",
+      "why": "Same division, chain wrestler vs rangy counter-striker.",
+      "tags": ["same-division", "grappler-vs-striker"],
+      "expected_stats": {
+        "merab-dvalishvili": ["td_avg_per15"],
+        "sean-omalley": ["str_acc_pct", "str_def_pct"]
+      },
+      "forbidden": {
+        "styles": { "merab-dvalishvili": ["Striker"], "sean-omalley": ["Wrestler", "Grappler"] },
+        "favors": [
+          { "keywords": ["takedown", "wrestl"], "not": "sean-omalley", "why": "Dvalishvili lands takedowns at many times O'Malley's rate" },
+          { "keywords": ["reach", "length"], "not": "merab-dvalishvili", "why": "O'Malley has the longer reach" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc06",
+      "fighter_a": "max-holloway",
+      "fighter_b": "sean-omalley",
+      "why": "Two strikers with opposite profiles: volume vs accuracy. One division apart.",
+      "tags": ["cross-division", "striker-vs-striker"],
+      "expected_stats": {
+        "max-holloway": ["slpm"],
+        "sean-omalley": ["str_acc_pct", "str_def_pct"]
+      },
+      "forbidden": {
+        "styles": { "max-holloway": ["Wrestler", "Grappler"], "sean-omalley": ["Wrestler", "Grappler"] },
+        "favors": [
+          { "keywords": ["accuracy", "precision"], "not": "max-holloway", "why": "O'Malley is clearly the more accurate striker" },
+          { "keywords": ["volume", "output"], "not": "sean-omalley", "why": "Holloway lands more strikes per minute" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc07",
+      "fighter_a": "tom-aspinall",
+      "fighter_b": "alex-pereira",
+      "why": "Heavyweight all-rounder vs light heavyweight striker. Tests whether the weight gap is counted for the bigger man this time.",
+      "tags": ["cross-division", "all-rounder-vs-striker"],
+      "expected_stats": {
+        "tom-aspinall": ["slpm", "sub_avg_per15"],
+        "alex-pereira": ["reach_in"]
+      },
+      "forbidden": {
+        "styles": { "alex-pereira": ["Wrestler", "Grappler"] },
+        "favors": [
+          { "keywords": ["grappl", "submission", "takedown"], "not": "alex-pereira", "why": "Pereira has no submission or takedown offense" },
+          { "keywords": ["weight", "division"], "not": "alex-pereira", "why": "Aspinall is the heavyweight" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc08",
+      "fighter_a": "charles-oliveira",
+      "fighter_b": "max-holloway",
+      "why": "Submission specialist vs volume striker, one division apart.",
+      "tags": ["cross-division", "grappler-vs-striker"],
+      "expected_stats": {
+        "charles-oliveira": ["sub_avg_per15"],
+        "max-holloway": ["slpm"]
+      },
+      "forbidden": {
+        "styles": { "charles-oliveira": ["Striker"], "max-holloway": ["Wrestler", "Grappler"] },
+        "favors": [
+          { "keywords": ["submission", "grappl", "ground"], "not": "max-holloway", "why": "Oliveira holds the submission edge by a wide margin" },
+          { "keywords": ["volume", "output"], "not": "charles-oliveira", "why": "Holloway lands about twice as many strikes per minute" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc09",
+      "fighter_a": "merab-dvalishvili",
+      "fighter_b": "islam-makhachev",
+      "why": "Two wrestlers two divisions apart: volume takedowns vs accurate takedowns.",
+      "tags": ["cross-division", "grappler-vs-grappler"],
+      "expected_stats": {
+        "merab-dvalishvili": ["td_avg_per15"],
+        "islam-makhachev": ["td_acc_pct", "td_def_pct"]
+      },
+      "forbidden": {
+        "styles": { "merab-dvalishvili": ["Striker"], "islam-makhachev": ["Striker"] },
+        "favors": [
+          { "keywords": ["size", "weight", "division"], "not": "merab-dvalishvili", "why": "Makhachev competes two divisions higher" }
+        ],
+        "phrases": []
+      }
+    },
+    {
+      "id": "tc10",
+      "fighter_a": "tom-aspinall",
+      "fighter_b": "merab-dvalishvili",
+      "why": "Edge case: heavyweight vs bantamweight, a gap of more than 100 pounds. The size gap should dominate.",
+      "tags": ["cross-division", "extreme-size-gap"],
+      "expected_stats": {
+        "tom-aspinall": ["height_in", "reach_in"],
+        "merab-dvalishvili": ["td_avg_per15"]
+      },
+      "forbidden": {
+        "styles": { "merab-dvalishvili": ["Striker"] },
+        "favors": [
+          { "keywords": ["size", "weight", "reach", "height", "power"], "not": "merab-dvalishvili", "why": "Aspinall is far bigger in every measurement" }
+        ],
+        "phrases": []
+      }
+    }
+  ]
+}
