@@ -30,6 +30,7 @@ function setupAutocomplete(input) {
   let active = -1;   // which suggestion the arrow keys are on
   let timer = null;
 
+  // FNA-23: input listener with a short debounce
   input.addEventListener("input", () => {
     delete input.dataset.id;  // typing again un-picks the fighter
     clearTimeout(timer);
@@ -56,6 +57,7 @@ function setupAutocomplete(input) {
     if (!input.parentElement.contains(e.target)) close();
   });
 
+  // FNA-24: fetch matching fighters from the autocomplete endpoint
   async function search(text) {
     if (!text.trim()) return close();
     try {
@@ -67,6 +69,7 @@ function setupAutocomplete(input) {
     render();
   }
 
+  // FNA-25: render the dropdown
   function render() {
     list.replaceChildren();
     active = -1;
@@ -178,7 +181,8 @@ function renderResults(data) {
 
   results.replaceChildren();
 
-  // The verdict comes first, since it's what people look for.
+  // FNA-28: winner/confidence display. The verdict comes first, since
+  // it's what people look for.
   const verdict = el("div", "verdict");
   verdict.append(el("p", "label", "Predicted winner"));
   verdict.append(el("p", "winner", nameOf(a.predicted_winner_id)));
@@ -193,7 +197,7 @@ function renderResults(data) {
 
   results.append(el("p", "summary", a.summary));
 
-  // Key factors, each tagged with who it favors.
+  // FNA-27: matchup breakdown. Key factors, each tagged with who it favors.
   const factors = el("div", "factors");
   factors.append(el("h2", null, "Key factors"));
   for (const kf of a.key_factors) {
@@ -221,6 +225,7 @@ function renderResults(data) {
   results.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+// FNA-26: profile card component
 function profileCard(profile, fighter, path) {
   const card = el("article", "card");
   card.append(el("h3", null, profile.name));
