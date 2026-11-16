@@ -112,3 +112,39 @@ def data_status():
         "last_updated": meta.get("last_updated"),
         "warning": meta.get("warning"),
     }
+
+
+# ---- Writing (manage.py) ---------------------------------------------------
+# The CLI edits the file through these two functions, so this module stays
+# the only code that touches fighters.json.
+
+def read_raw():
+    """The whole file as a dict, fresh from disk (not the cache)."""
+    with open(DATA_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_raw(data):
+    """Write the whole file back, then drop the cache so readers see it.
+    Writes to a temp file first, so a crash mid-write can't leave a
+    half-written database behind."""
+    tmp = DATA_PATH.with_suffix(".json.tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(_format(data) + "\n")
+    tmp.replace(DATA_PATH)
+    reload()
+
+
+def _format(value, indent=0):
+    """Like json.dumps(indent=2), except small flat objects such as
+    "record" stay on one line, matching how the file is laid out by hand."""
+    pad, inner = " " * indent, " " * (indent + 2)
+    if isinstance(value, dict) and value:
+        if indent >= 6 and not any(isinstance(v, (dict, list)) for v in value.values()):
+            return "{ " + ", ".join(f"{json.dumps(k)}: {_format(v)}" for k, v in value.items()) + " }"
+        items = ",\n".join(f"{inner}{json.dumps(k)}: {_format(v, indent + 2)}" for k, v in value.items())
+        return "{\n" + items + "\n" + pad + "}"
+    if isinstance(value, list) and value:
+        items = ",\n".join(inner + _format(v, indent + 2) for v in value)
+        return "[\n" + items + "\n" + pad + "]"
+    return json.dumps(value, ensure_ascii=False)
