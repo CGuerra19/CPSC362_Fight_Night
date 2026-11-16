@@ -4,10 +4,60 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fight Night Analyzer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥊</text></svg>">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>Fight Night Analyzer</h1>
-  <p>Scaffold only. The real interface is FNA-17 / FNA-3.</p>
-  <p>Working endpoints: <code>/api/fighters?q=</code> and <code>/api/health</code>.</p>
+  <header>
+    <h1>Fight Night Analyzer</h1>
+    <p class="tagline">Pick two UFC fighters and get an AI breakdown of the matchup.</p>
+  </header>
+
+  <main>
+    <!-- FNA-17: the only inputs are two fighters and one button. -->
+    <form id="matchup-form" autocomplete="off" novalidate>
+      <div class="fighters">
+        <div class="fighter-field">
+          <label for="fighter-a">Fighter A</label>
+          <input id="fighter-a" type="text" placeholder="Start typing a name" role="combobox"
+                 aria-autocomplete="list" aria-expanded="false" aria-controls="fighter-a-list">
+          <ul id="fighter-a-list" class="suggestions" role="listbox" hidden></ul>
+        </div>
+
+        <span class="vs">vs</span>
+
+        <div class="fighter-field">
+          <label for="fighter-b">Fighter B</label>
+          <input id="fighter-b" type="text" placeholder="Start typing a name" role="combobox"
+                 aria-autocomplete="list" aria-expanded="false" aria-controls="fighter-b-list">
+          <ul id="fighter-b-list" class="suggestions" role="listbox" hidden></ul>
+        </div>
+      </div>
+
+      <button id="analyze-btn" type="submit">Analyze</button>
+      <p id="loading-note" class="loading-note" hidden>This can take up to a minute.</p>
+
+      <details class="own-key">
+        <summary>Use your own API key</summary>
+        <label for="api-key">Groq API key (used for this request only, never saved)</label>
+        <input id="api-key" type="password" placeholder="gsk_...">
+      </details>
+    </form>
+
+    <!-- FNA-21: one plain sentence when something goes wrong. -->
+    <div id="error-banner" class="error-banner" role="alert" hidden>
+      <span id="error-text"></span>
+      <button id="error-close" type="button" aria-label="Dismiss">&times;</button>
+    </div>
+
+    <!-- FNA-19: filled in by app.js once a matchup comes back. -->
+    <section id="results" hidden></section>
+  </main>
+
+  <footer>
+    <p id="data-note" hidden></p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

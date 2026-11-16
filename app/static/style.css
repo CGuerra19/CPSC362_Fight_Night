@@ -1,0 +1,226 @@
+/* Fight Night Analyzer styles (FNA-22). Dark theme, one red accent. */
+
+:root {
+  --bg: #121417;
+  --panel: #1c1f24;
+  --panel-2: #252931;
+  --border: #333842;
+  --text: #e8e9ec;
+  --muted: #9aa0ab;
+  --accent: #d7263d;
+  --accent-dark: #a91d30;
+  --even: #6b7280;
+  --error-bg: #3a1a1f;
+  --error-border: #d7263d;
+}
+
+* { box-sizing: border-box; }
+
+/* Form controls don't inherit the page font by default. */
+input, button { font-family: inherit; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+header, main, footer {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+header { padding-top: 2.5rem; text-align: center; }
+h1 { margin: 0; font-size: 2.2rem; letter-spacing: 0.02em; }
+.tagline { margin: 0.4rem 0 2rem; color: var(--muted); }
+
+/* ---- Form ---------------------------------------------------------------- */
+
+form {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.fighters {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.fighter-field { position: relative; flex: 1; }
+
+label { display: block; margin-bottom: 0.35rem; color: var(--muted); font-size: 0.9rem; }
+
+input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 1rem;
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+input:disabled { opacity: 0.6; }
+
+.vs {
+  padding-bottom: 0.7rem;
+  color: var(--accent);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Autocomplete dropdown (FNA-18) */
+.suggestions {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+  margin: 0.25rem 0 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.suggestion { padding: 0.5rem 0.8rem; cursor: pointer; }
+.suggestion:hover, .suggestion.active { background: var(--border); }
+.suggestion .name { display: block; }
+.suggestion .meta { display: block; color: var(--muted); font-size: 0.85rem; }
+.no-match { padding: 0.5rem 0.8rem; color: var(--muted); }
+
+#analyze-btn {
+  display: block;
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+#analyze-btn:hover:not(:disabled) { background: var(--accent-dark); }
+/* FNA-20: greyed out while a matchup is running */
+#analyze-btn:disabled { background: var(--even); cursor: wait; }
+
+.loading-note { margin: 0.6rem 0 0; color: var(--muted); text-align: center; font-size: 0.9rem; }
+
+.own-key { margin-top: 1rem; color: var(--muted); font-size: 0.9rem; }
+.own-key summary { cursor: pointer; }
+.own-key label { margin-top: 0.6rem; }
+
+/* ---- Error banner (FNA-21) ----------------------------------------------- */
+
+.error-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  border-radius: 8px;
+}
+.error-banner[hidden] { display: none; }
+#error-close {
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ---- Results (FNA-19) ---------------------------------------------------- */
+
+#results { margin-top: 2rem; scroll-margin-top: 1rem; }
+
+.verdict {
+  padding: 1.5rem;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+}
+.verdict .label { margin: 0; color: var(--muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; }
+.verdict .winner { margin: 0.2rem 0; font-size: 2rem; font-weight: 800; }
+.verdict .method { margin: 0; color: var(--muted); }
+
+.cross-note {
+  margin: 1rem 0 0;
+  padding: 0.6rem 1rem;
+  background: var(--panel-2);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  color: var(--muted);
+}
+
+.summary { margin: 1.25rem 0; font-size: 1.05rem; }
+
+h2 { margin: 2rem 0 0.8rem; font-size: 1.3rem; }
+
+.factor {
+  margin-bottom: 0.8rem;
+  padding: 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.factor p { margin: 0.4rem 0 0; }
+.factor-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.factor-name { font-weight: 700; }
+.tag {
+  flex-shrink: 0;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.8rem;
+}
+.tag.even { background: var(--even); }
+.evidence { color: var(--muted); font-size: 0.85rem; }
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.card {
+  padding: 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.card h3 { margin: 0; font-size: 1.3rem; }
+.card-meta { margin: 0.2rem 0 0; color: var(--muted); }
+.card h4 { margin: 1rem 0 0.3rem; color: var(--accent); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.card p { margin: 0; }
+.card ul { margin: 0; padding-left: 1.2rem; }
+
+.stats { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.stats th, .stats td { padding: 0.35rem 0.4rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.stats th { font-weight: 600; white-space: nowrap; }
+.stats .value { font-weight: 700; }
+.stats .meaning { color: var(--muted); }
+
+footer { padding: 2.5rem 1.25rem; color: var(--muted); font-size: 0.85rem; text-align: center; }
+
+/* ---- Phones ---------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .fighters { flex-direction: column; align-items: stretch; }
+  .vs { padding: 0; text-align: center; }
+  .cards { grid-template-columns: 1fr; }
+  .verdict .winner { font-size: 1.6rem; }
+}
