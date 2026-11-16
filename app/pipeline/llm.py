@@ -37,12 +37,17 @@ class LLMError(RuntimeError):
         self.kind = kind
 
 
-def complete(system, user, *, provider=None, api_key=None, model=None, temperature=0.2, timeout=60):
-    """Send one system + user prompt and return the model's raw text reply."""
+def complete(system, user, *, provider=None, api_key=None, model=None, temperature=0.2, schema=None, timeout=60):
+    """Send one system + user prompt and return the model's raw text reply.
+
+    schema is a Pydantic model class. When given (v3+), Groq's strict mode
+    holds the model to that schema while it writes, instead of only
+    checking the reply afterwards.
+    """
     provider = provider or os.getenv("LLM_PROVIDER", "demo")
 
     if provider == "groq":
-        return _groq(system, user, api_key, model, temperature, timeout)
+        return _groq(system, user, api_key, model, temperature, schema, timeout)
     if provider == "demo":
         # Demo mode serves saved answers from the response cache, which
         # doesn't exist yet. Until then there is nothing to serve.
@@ -50,7 +55,7 @@ def complete(system, user, *, provider=None, api_key=None, model=None, temperatu
     raise LLMError(f"Unknown LLM provider '{provider}'", "config")
 
 
-def _groq(system, user, api_key, model, temperature, timeout):
+def _groq(system, user, api_key, model, temperature, schema, timeout):
     key = api_key or os.getenv("GROQ_API_KEY")
     if not key:
         raise LLMError("GROQ_API_KEY is not set", "config")
@@ -66,6 +71,14 @@ def _groq(system, user, api_key, model, temperature, timeout):
         # guaranteed to match our schema. That's what parse_profile checks.
         "response_format": {"type": "json_object"},
     }
+    if schema is not None:
+        # Strict mode: the reply is generated to fit the schema itself.
+        # The parsers still run afterwards for the checks a schema can't
+        # express (right fighter, winner is in the fight).
+        body["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {"name": schema.__name__, "strict": True, "schema": schema.model_json_schema()},
+        }
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:

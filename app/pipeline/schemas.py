@@ -90,6 +90,34 @@ class MatchupAnalysis(_Strict):
         return self
 
 
+# ---- Stage 2, v4 (FNA-14) ---------------------------------------------------
+
+class Evidence(_Strict):
+    """A stat a key factor rests on, taken from one fighter's profile."""
+    fighter_id: str
+    stat: StatName
+    value: float
+
+
+class KeyFactorWithEvidence(KeyFactor):
+    evidence: list[Evidence] = Field(min_length=1, max_length=4)
+
+
+class MatchupAnalysisV4(MatchupAnalysis):
+    """v4 asks every key factor to show its evidence. Same fields and order
+    as MatchupAnalysis otherwise."""
+    key_factors: list[KeyFactorWithEvidence] = Field(min_length=2, max_length=5)
+
+    @model_validator(mode="after")
+    def _evidence_ids(self):
+        ids = {self.fighter_a_id, self.fighter_b_id}
+        for kf in self.key_factors:
+            for ev in kf.evidence:
+                if ev.fighter_id not in ids:
+                    raise ValueError(f"evidence for '{kf.factor}' cites unknown fighter '{ev.fighter_id}'")
+        return self
+
+
 # ---- Parsing ---------------------------------------------------------------
 
 class ContractError(ValueError):
@@ -137,11 +165,11 @@ def parse_profile(raw, fighter_id=None):
     return profile
 
 
-def parse_matchup(raw, fighter_a_id=None, fighter_b_id=None):
+def parse_matchup(raw, fighter_a_id=None, fighter_b_id=None, model=MatchupAnalysis):
     """Validate a Stage 2 response. Pass the two ids to also catch the model
-    swapping or inventing fighters."""
+    swapping or inventing fighters. model is MatchupAnalysisV4 for v4."""
     try:
-        analysis = MatchupAnalysis.model_validate_json(_strip_fences(raw))
+        analysis = model.model_validate_json(_strip_fences(raw))
     except ValidationError as e:
         raise ContractError("stage2", _problems(e), raw) from e
 
