@@ -25,10 +25,41 @@ Open http://127.0.0.1:5000
 
 | Route | Status |
 |---|---|
-| `GET /` | Scaffold page (real UI: FNA-17) |
+| `GET /` | Working - the web page (FNA-3) |
 | `GET /api/fighters?q=&limit=` | Working - autocomplete (FNA-7) |
 | `GET /api/health` | Working - config and data-verification status |
-| `POST /api/matchup` | 501, pending FNA-15 |
+| `POST /api/matchup` | Working - runs a matchup through the pipeline (FNA-15) |
+
+`POST /api/matchup` takes `{"fighter_a": "<id>", "fighter_b": "<id>"}`, plus an
+optional `"version"` (`v1`-`v4`, default `PIPELINE_VERSION`) and an optional
+`"api_key"` (a user's own Groq key, used for that request only and never stored).
+It returns both Stage 1 profiles, the Stage 2 analysis, and a `cross_division`
+flag. Errors come back as `{"error": "<one plain sentence>"}`.
+
+## Pipeline versions (FNA-14)
+
+Each version adds one change to the one before it, so the eval (FNA-4) can tie
+a score change to a single cause. Pick one with `PIPELINE_VERSION` in `.env`.
+
+| Version | Change |
+|---|---|
+| v1 | Plain prompts (baseline) |
+| v2 | + explains what each stat means, + gives Stage 2 both divisions |
+| v3 | + Groq strict schema mode, + temperature 0 |
+| v4 | + every key factor must cite the stats it rests on |
+
+## Managing fighters
+
+```bash
+python manage.py list                                  # one line per fighter
+python manage.py show islam-makhachev                  # full record
+python manage.py add                                   # new fighter (asks for each field)
+python manage.py result islam-makhachev win submission # after an event
+python manage.py set islam-makhachev striking.slpm 2.41
+python manage.py validate                              # check the whole file
+```
+
+Every change is validated before it is saved.
 
 ## Layout
 
@@ -45,12 +76,16 @@ app/
     stage1.py          stats -> FighterProfile (FNA-12)
     stage2.py          two profiles -> MatchupAnalysis (FNA-13)
     guard.py           re-ask on bad output, user-facing errors (FNA-16)
-  templates/           index.html (FNA-17)
-  static/              style.css, app.js (FNA-22)
+    versions.py        v1 - v4 settings (FNA-14)
+    dispatcher.py      run_matchup(): one call runs any version (FNA-14)
+  templates/           index.html: page layout (FNA-17)
+  static/              app.js: autocomplete, results, loading, errors (FNA-18 - 21)
+                       style.css (FNA-22)
 eval/                  harness and test cases (FNA-29, FNA-30)
+manage.py              fighter database CLI
 ```
 
-Nothing outside `data/load_fighters.py` reads the JSON directly, so the storage
+Nothing outside `data/load_fighters.py` reads or writes the JSON directly, so the storage
 layer can move to SQLite without touching the rest of the app.
 
 ## Known gap
